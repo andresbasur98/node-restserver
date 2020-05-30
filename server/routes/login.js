@@ -1,9 +1,10 @@
 const express = require('express');
 
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); // Para generar nuestro token
 
-const { OAuth2Client } = require('google-auth-library');
+//Librería de google que nos va a valer para validar el token
+const { OAuth2Client } = require('google-auth-library'); 
 const client = new OAuth2Client(process.env.CLIENT_ID);
 
 
@@ -13,7 +14,7 @@ const Usuario = require('../models/usuario');
 const app = express();
 
 
-
+// Trabajamos con una autenticación post para la autenticación
 app.post('/login', (req, res) => {
 
     let body = req.body;
@@ -46,8 +47,8 @@ app.post('/login', (req, res) => {
             });
         }
 
-        let token = jwt.sign({
-            usuario: usuarioDB
+        let token = jwt.sign({ // Generamos el token
+            usuario: usuarioDB  // payload, secret(seed) y fecha de expiracion
         }, process.env.SEED, { expiresIn: process.env.CADUCIDAD_TOKEN });
 
         res.json({
@@ -62,7 +63,7 @@ app.post('/login', (req, res) => {
 });
 
 
-// Configuraciones de Google
+// Configuraciones de Google verificamos el token
 async function verify(token) {
     const ticket = await client.verifyIdToken({
         idToken: token,
@@ -70,7 +71,7 @@ async function verify(token) {
         // Or, if multiple clients access the backend:
         //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
     });
-    const payload = ticket.getPayload();
+    const payload = ticket.getPayload(); // Aqui tenemos toda la información del usuario
 
     return {
         nombre: payload.name,
@@ -95,7 +96,7 @@ app.post('/google', async(req, res) => {
         });
 
 
-    Usuario.findOne({ email: googleUser.email }, (err, usuarioDB) => {
+    Usuario.findOne({ email: googleUser.email }, (err, usuarioDB) => { // Verificamos si ya existe en la BD
 
         if (err) {
             return res.status(500).json({
@@ -137,7 +138,7 @@ app.post('/google', async(req, res) => {
             usuario.google = true;
             usuario.password = ':)';
 
-            usuario.save((err, usuarioDB) => {
+            usuario.save((err, usuarioDB) => {   // Guardar en la BD
 
                 if (err) {
                     return res.status(500).json({

@@ -6,15 +6,16 @@ const jwt = require('jsonwebtoken');
 // Verificar Token
 //============================
 
- 
+                                // next continua la ejecución 
 let verificaToken = (req, res, next) =>{
 
-    // Podemos obtener los headers
+    // Podemos obtener los headers ( en el que estamos enviando el token)
     let token = req.get('token');
 
+                                                // Entendemos decoded como la información decodificada (payload)
     jwt.verify( token, process.env.SEED, (err, decoded) =>{
         if( err ){
-            return res.status(401).json({
+            return res.status(401).json({  //401 status no autorizado
                 ok: false,
                 err: {
                     message: 'token no válido'
@@ -23,7 +24,7 @@ let verificaToken = (req, res, next) =>{
         }
 
         req.usuario = decoded.usuario;
-        next();
+        next(); //Hay que ejecutarlo al final
     });
 
 };

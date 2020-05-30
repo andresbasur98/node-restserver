@@ -1,10 +1,12 @@
 const express = require('express');
 const app = express();
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');// Para encryptar la contraseña
+
 //Nos permite escoger que campos se van actualizar y cuales no
 const _ = require('underscore');
 
+//Importar el modelo del usuario 
 const Usuario = require('../models/usuario');
 
 const { verificaToken, verificaAdmin_Role } = require('../middlewares/autenticacion');
@@ -18,18 +20,18 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
-
+                    //middleware
 app.get('/usuario', verificaToken, (req, res)=> {
    
     
-
-    let desde = req.query.desde || 0;
+// Parametros opcionales ( ?desde=&limite=)
+    let desde = req.query.desde || 0; 
     desde = Number(desde);
 
     let limite = req.query.limite || 5;
     limite = Number(limite);
 
-    // Nos permite encontrar los usuarios 
+    // Nos permite encontrar los usuarios ( {condición}, los campos que nos interesa regresar) 
     Usuario.find({estado: true},'nombre email role estado google img')
             .skip(desde)
             .limit(limite)
@@ -40,7 +42,7 @@ app.get('/usuario', verificaToken, (req, res)=> {
                         err
                     });
                 }
-
+                //Cuenta los usuarios
                 Usuario.count({estado: true},(err,conteo)=>{
 
                     res.json({
@@ -57,7 +59,7 @@ app.get('/usuario', verificaToken, (req, res)=> {
 
 app.post('/usuario', [verificaToken,verificaAdmin_Role],(req, res) => {
 
-    let body = req.body;
+    let body = req.body; // La información que le mandamos
 
     let usuario = new Usuario({
         nombre: body.nombre,
@@ -66,6 +68,7 @@ app.post('/usuario', [verificaToken,verificaAdmin_Role],(req, res) => {
         role: body.role
     });
 
+    //Para guarda en la base de datos
     usuario.save((err, usuarioDB) =>{
         if(err){
          return res.status(400).json({
@@ -86,10 +89,12 @@ app.post('/usuario', [verificaToken,verificaAdmin_Role],(req, res) => {
 
 app.put('/usuario/:id', [verificaToken, verificaAdmin_Role], (req, res) => {
 
-    let id = req.params.id;
-    // Escogemos los campos que se van a poder actualizar
-    let body = _.pick(req.body,['nombre','email','img','role','estado']);
+    let id = req.params.id; // obtenemos el parametro del id
 
+    // Escogemos los campos que se van a poder actualizar( evitamos que se actualicen campos que no queremos actualizar)
+    let body = _.pick(req.body,['nombre','email','img','role','estado']);
+                          
+                            // id , update(lo que actualizamos, y con runvalidators corre las validaciones hechas en el esquema),options(nos retorna el usuario actualizado) ,callback 
     Usuario.findByIdAndUpdate( id, body,{new: true, runValidators: true},(err, usuarioDB) =>{
 
         if(err){

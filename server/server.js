@@ -2,7 +2,7 @@ require('./config/config');
 
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
+const path = require('path'); // lo utilizamos en la parte de habilitar la carpeta public
 
 const app = express();
 
@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json());
 
-// habilitar la carpeta public
+// habilitar la carpeta public para que todo el mundo la pueda ver(Nos muestra el html)
 app.use(express.static(path.resolve(__dirname, '../public')));
 
 
@@ -23,7 +23,7 @@ app.use(require('./routes/index'));
 
 
 
-mongoose.connect(process.env.URLDB, (err, res) => {
+mongoose.connect(process.env.URLDB, { useNewUrlParser: true, useCreateIndex: true , useUnifiedTopology: true }, (err, res) => {
 
     if (err) throw err;
 

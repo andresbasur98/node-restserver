@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
+const uniqueValidator = require('mongoose-unique-validator'); 
 
-let rolesValidos = {
+let rolesValidos = { // controlamos que el rol que se pueda mandar sea uno de estos dos
     values: ['ADMIN_ROLE','USER_ROLE'],
     message: '{VALUE} no es un rol válido'
 }
@@ -41,17 +41,17 @@ let usuarioSchema = new Schema({
     } 
 });
 
-usuarioSchema.methods.toJSON = function(){
+usuarioSchema.methods.toJSON = function(){ // Escondemos la contraseña de manera que no pueda verla el usuario (modificamos el metodo de enviar por toJSON que se utiliza cuando vamos a imprimir algo)
     
-    let user = this;
-    let userObject = user.toObject();
-    delete userObject.password;
+    let user = this;                   // this => lo que hay en ese momento
+    let userObject = user.toObject(); // Obtenemos todas sus propiedades y métodos
+    delete userObject.password;      // Y lo borramos
 
     return userObject;
 }
 
-usuarioSchema.plugin( uniqueValidator,{
+usuarioSchema.plugin( uniqueValidator,{     // Estamos controlando el error en email para el campo unique requerimos el uniqueValidator arriba
     message: '{PATH} debe de ser único'
 });
 
-module.exports = mongoose.model( 'Usuario', usuarioSchema );
+module.exports = mongoose.model( 'Usuario', usuarioSchema ); // El modelo se llama Usuario y tiene la configuración de usuarioSchema
